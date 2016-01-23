@@ -35,6 +35,7 @@ BUILD_DATE=`date +%Y%m%d%H%M%S`
 
 GIT_HASH=$(git rev-parse HEAD)
 
+LIBREELEC_VERSION=devel
 if [ "$LIBREELEC_VERSION" = "devel" ]; then
   if ! GIT_BUILD=$(git rev-list --count HEAD 2>/dev/null)
   then
@@ -520,7 +521,13 @@ fi
           rm -rf $RELEASE_DIR/${DISTRONAME}_${PROJECT}/${DISTRONAME}_${PROJECT}_System.tar.xz
           rm -rf $RELEASE_DIR/${DISTRONAME}_${PROJECT}/${DISTRONAME}_${PROJECT}_Storage.tar.xz
 
-        # create filesystem tarballs
+        # Get total size for partition spec
+        sz=`du -s $RELEASE_DIR/${DISTRONAME}_${PROJECT}/ | cut -f1`
+        sz=$((sz/1000))
+        sed -e "s/@TARBALL_SIZE@/$sz/g" \
+            -i $RELEASE_DIR/${DISTRONAME}_${PROJECT}/partitions.json
+
+      # create filesystem tarballs
           tar cJf $RELEASE_DIR/${DISTRONAME}_${PROJECT}/${DISTRONAME}_${PROJECT}_System.tar.xz -C $RELEASE_DIR/${DISTRONAME}_${PROJECT}/System/ .
           tar cJf $RELEASE_DIR/${DISTRONAME}_${PROJECT}/${DISTRONAME}_${PROJECT}_Storage.tar.xz -C $RELEASE_DIR/${DISTRONAME}_${PROJECT}/Storage/ .
 
